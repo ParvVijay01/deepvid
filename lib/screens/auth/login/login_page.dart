@@ -1,4 +1,8 @@
 import 'package:deepvid/routes/app_pages.dart';
+import 'package:deepvid/screens/auth/components/googleSignIn/google_sign_in.dart';
+import 'package:deepvid/screens/home/homeScreen/home_screen.dart';
+import 'package:deepvid/services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:deepvid/widgets/google_login_button.dart';
 import 'package:deepvid/widgets/gradient_button.dart';
@@ -14,17 +18,69 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  bool _isObscured = true;
+  //Services
+  final AuthService _authService = AuthService();
+  final GoogleAuthService _googleAuthService = GoogleAuthService();
+
   // Controllers
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  // State variable to control password field visibility
+  // State variables
   bool _isEmailValid = false;
+  String? _errorMessage; // Stores error messages
+
+  // Handle Google Sign-In with error handling
+  void _handleGoogleSignIn() async {
+    setState(() {
+      _errorMessage = null; // Reset error message
+    });
+
+    try {
+      User? user = await _googleAuthService.signInWithGoogle();
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      }
+    } catch (error) {
+      setState(() {
+        _errorMessage = error.toString(); // Set error message for display
+      });
+
+      // Show error as Snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString()), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  //handle login
+  void _handleLogin() async {
+    try {
+      User? user = await _authService.loginWithEmail(
+        emailController.text.trim(),
+        passwordController.text.trim(),
+      );
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      }
+    } catch (error) {
+      setState(() => _errorMessage = error.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_errorMessage!), backgroundColor: Colors.red),
+      );
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    // Add listener to validate email in real-time
     emailController.addListener(_validateEmail);
   }
 
@@ -43,7 +99,6 @@ class _LoginPageState extends State<LoginPage> {
 
     bool isValid = regex.hasMatch(email);
 
-    // Ensure state updates only when validity changes
     if (isValid != _isEmailValid) {
       setState(() {
         _isEmailValid = isValid;
@@ -53,6 +108,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -61,11 +117,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image(
-                  image: AssetImage("assets/images/logo.png"),
-                  height: 150,
-                  width: 150,
-                ),
+                Image.asset("assets/images/logo.png", height: 150, width: 150),
                 Text(
                   "Welcome Back to Your AI Creation Hub",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40),
@@ -100,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                         style: TextStyle(
                           fontSize: 35,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white, // Required for ShaderMask
+                          color: Colors.white,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -108,7 +160,9 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(height: 10),
                     Center(
                       child: LoginText(
-                        onLoginTap: () {Get.toNamed(AppPages.signUp);},
+                        onLoginTap: () {
+                          Get.toNamed(AppPages.signUp);
+                        },
                         text1: "Don't have an account? ",
                         text2: "Sign up",
                       ),
@@ -130,6 +184,8 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           TextFormField(
+                            cursorColor: Colors.white,
+
                             controller: emailController,
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
@@ -154,9 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                             child:
                                 _isEmailValid
                                     ? Column(
-                                      key: ValueKey(
-                                        1,
-                                      ), // Ensures animation works
+                                      key: ValueKey(1),
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
@@ -175,14 +229,31 @@ class _LoginPageState extends State<LoginPage> {
                                         ),
                                         TextFormField(
                                           controller: passwordController,
-                                          obscureText: true,
+                                          obscureText: _isObscured, // Toggle visibility
+                                          cursorColor: Colors.white,
                                           decoration: InputDecoration(
-                                            hintText: "Enter your password",
+                                            hintText: "Enter your Password",
                                             border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
+                                              borderRadius: BorderRadius.circular(15),
                                             ),
-                                            prefixIcon: Icon(Icons.lock),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.circular(15),
+                                              borderSide: BorderSide(
+                                                color: Colors.grey,
+                                                width: 4,
+                                              ),
+                                            ),
+                                            suffixIcon: IconButton(
+                                              icon: Icon(
+                                                _isObscured ? Icons.visibility_off : Icons.visibility,
+                                                color: Colors.white70, // Adjust icon color
+                                              ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _isObscured = !_isObscured; // Toggle password visibility
+                                                });
+                                              },
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(height: 15),
@@ -191,16 +262,17 @@ class _LoginPageState extends State<LoginPage> {
                                     : SizedBox.shrink(),
                           ),
 
-                          // Always visible login & Google Sign-In buttons
-                          GradientButton(
-                            text: "Log in",
-                            onPressed: () {
-                              
-                            },
-                          ),
+                          TextButton(onPressed:
+                              () => Get.toNamed(AppPages.forgotPassword), child: Text("Forgot Password?", style: TextStyle(color: Color(0xff413cd7),),),),
+
+                          // Log in & Google Sign-In buttons
+                          GradientButton(text: "Log in", onPressed: _handleLogin),
                           SizedBox(height: 20),
-                          GoogleLoginButton(onGoogleSignIn: () {}),
-                        ],
+
+                          GoogleLoginButton(
+                            onGoogleSignIn: _handleGoogleSignIn,
+                          ),
+                          ],
                       ),
                     ),
                   ],

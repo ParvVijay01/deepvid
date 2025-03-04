@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'DeepVid',
       theme: darkMode,
-      initialRoute: AppPages.login,
+      initialRoute: AppPages.splash,
       defaultTransition: Transition.cupertino,
       getPages: AppPages.routes,
     );

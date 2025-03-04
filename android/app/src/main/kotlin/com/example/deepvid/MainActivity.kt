@@ -1,4 +1,4 @@
-package com.example.deepvid
+package com.parv.deepvid
 
 import io.flutter.embedding.android.FlutterActivity
 
