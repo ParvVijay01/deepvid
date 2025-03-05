@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "764287136476",
+    "project_id": "deepvid-34b47",
+    "storage_bucket": "deepvid-34b47.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:764287136476:android:ffab095086266f96963a19",
+        "android_client_info": {
+          "package_name": "com.parv.deepvid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "764287136476-d34pvjp5bb5gn5jf4lb25glicq8euq4j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.parv.deepvid",
+            "certificate_hash": "75247b18e26dc6c71ba541dd67116f48b7d661f1"
+          }
+        },
+        {
+          "client_id": "764287136476-50qb8c9360bueg1n1a0r9nq7rkb9ltni.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYsxNmWKK7bdPEA7VH8da4rVveMe5fH3Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "764287136476-50qb8c9360bueg1n1a0r9nq7rkb9ltni.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "764287136476-n0p765sapk7mc4fmm2c7ac1b413dvrue.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.parv.deepvid"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
